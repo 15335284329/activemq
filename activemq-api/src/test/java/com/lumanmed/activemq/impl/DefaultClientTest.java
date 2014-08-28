@@ -20,11 +20,12 @@ import junit.framework.TestCase;
 public class DefaultClientTest extends TestCase {
 	
 	@Test
-	public void testTemp() {
+	public void success() {
 		
 	}
 
-	@Test
+	// won't enable this test cause it brings up background thread
+	//@Test
 	public void testClient() {
 		CameraClientThread cameraClient = new CameraClientThread();
 		cameraClient.start();

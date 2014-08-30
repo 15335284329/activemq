@@ -10,12 +10,15 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.jms.Message;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 
 import com.lumanmed.activemq.api.Client;
-import com.lumanmed.activemq.api.MessageHandler;
-import com.lumanmed.activemq.message.Message;
+import com.lumanmed.activemq.api.Request;
+import com.lumanmed.activemq.api.RequestHandler;
+import com.lumanmed.activemq.api.Response;
 
 /**
  * @author Willard
@@ -35,8 +38,8 @@ public class DefaultClient implements Client {
 	protected long counter = 0;
 	protected PublisherThread publisher;
 	protected ListenerThread listener;
-	protected Vector<Message> messageSource = new Vector<Message>();
-	protected ConcurrentMap<Long, Message> messageResponse = new ConcurrentHashMap<Long, Message>();
+	protected Vector<Request> messageSource = new Vector<Request>();
+	protected ConcurrentMap<Long, Response> messageResponse = new ConcurrentHashMap<Long, Response>();
 
 	public DefaultClient(String publisherTopic, String listenerTopic) {
 		Properties prop = new Properties();
@@ -72,10 +75,10 @@ public class DefaultClient implements Client {
 		}
 	}
 
-	public Message sendAndWait(Message message) {
+	public Response sendAndWait(Request request) {
 		long id = counter();
-		message.setId(id);
-		messageSource.add(message);
+		request.setId(String.valueOf(id));
+		messageSource.add(request);
 		synchronized (publisher) {
 //			logger.debug("State: " + publisher.getState());
 			if (publisher.getState() == State.WAITING) {
@@ -97,7 +100,7 @@ public class DefaultClient implements Client {
 		return null;
 	}
 
-	public void waitAndResponse(MessageHandler handler) {
+	public void waitAndResponse(RequestHandler handler) {
 		while (true) {
 			if (messageResponse.size() > 0) {
 				synchronized (this) {

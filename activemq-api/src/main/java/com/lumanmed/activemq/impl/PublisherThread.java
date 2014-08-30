@@ -17,7 +17,8 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.log4j.Logger;
 
-import com.lumanmed.activemq.message.Message;
+import com.lumanmed.activemq.api.Request;
+
 
 /**
  * @author Willard
@@ -27,11 +28,11 @@ public class PublisherThread extends Thread {
 	private static final Logger logger = Logger
 			.getLogger(PublisherThread.class);
 	private ActiveMQConnectionFactory factory;
-	private Vector<Message> messageSource;
+	private Vector<Request> messageSource;
 	private String topic;
 
 	public PublisherThread(ActiveMQConnectionFactory factory,
-			Vector<Message> messageSource, String topic) {
+			Vector<Request> messageSource, String topic) {
 		this.factory = factory;
 		this.messageSource = messageSource;
 		this.topic = topic;
@@ -46,7 +47,7 @@ public class PublisherThread extends Thread {
 			if (messageSource.size() > 0) {
 				// The first element is valid since messageSource only increase
 				// never decrease outside PublisherThread.
-				Message message = messageSource.remove(0);
+				Request message = messageSource.remove(0);
 
 				try {
 					logger.info(String.format("Start connection %d ...",

@@ -6,7 +6,7 @@ package com.lumanmed.activemq.impl;
 import org.junit.Test;
 
 import com.lumanmed.activemq.api.Client;
-import com.lumanmed.activemq.api.MessageHandler;
+import com.lumanmed.activemq.api.RequestHandler;
 import com.lumanmed.activemq.message.CameraControlMessage;
 import com.lumanmed.activemq.message.CameraResponseMessage;
 import com.lumanmed.activemq.message.Message;
@@ -71,7 +71,7 @@ public class DefaultClientTest extends TestCase {
 		}
 	}
 	
-	static class MockMessageHandler implements MessageHandler {
+	static class MockMessageHandler implements RequestHandler {
 
 		public Message handle(Message message) {
 			if (message instanceof CameraControlMessage) {

@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
@@ -17,7 +18,6 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.log4j.Logger;
 
-import com.lumanmed.activemq.message.Message;
 
 /**
  * @author Willard

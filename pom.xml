@@ -14,7 +14,6 @@
     
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<dashboardVersion>0.0.1-SNAPSHOT</dashboardVersion>
 	</properties>
     
 	<dependencyManagement>
@@ -29,6 +28,11 @@
 				<groupId>log4j</groupId>
 				<artifactId>log4j</artifactId>
 				<version>1.2.9</version>
+			</dependency>
+			<dependency>
+				<groupId>com.lumanmed.activemq</groupId>
+				<artifactId>activemq-api</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

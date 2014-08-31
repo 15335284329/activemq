@@ -8,7 +8,7 @@ package com.lumanmed.activemq.api;
  *
  */
 public interface Client {
-	public Response sendAndWait(Request request);
+	public MessageAdaptor sendAndWait(MessageAdaptor request);
 	
-	public void waitAndResponse(RequestHandler handler);
+	public void waitAndResponse(MessageHandler handler);
 }

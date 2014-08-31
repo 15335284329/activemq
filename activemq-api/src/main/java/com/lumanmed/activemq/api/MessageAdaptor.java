@@ -11,12 +11,13 @@ import javax.jms.Session;
  * @author jwang25
  *
  */
-public interface Request {
-	public String getProperty(String key);
+public interface MessageAdaptor {
 
 	public void setId(String id);
 	
 	public String getId();
 	
 	public Message toMessage(Session session) throws JMSException;
+	
+	public void fromMessage(Message message) throws JMSException;
 }

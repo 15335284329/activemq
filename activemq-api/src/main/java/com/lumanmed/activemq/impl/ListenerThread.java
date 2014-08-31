@@ -3,21 +3,22 @@
  */
 package com.lumanmed.activemq.impl;
 
-import java.io.Serializable;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.log4j.Logger;
 
-import com.lumanmed.activemq.message.Message;
+import com.lumanmed.activemq.api.MessageAdaptor;
+import com.lumanmed.activemq.api.Strings;
+import com.lumanmed.activemq.message.MessageFactory;
 
 /**
  * @author Willard
@@ -26,11 +27,11 @@ import com.lumanmed.activemq.message.Message;
 public class ListenerThread extends Thread {
 	private static final Logger logger = Logger.getLogger(ListenerThread.class);
 	private ActiveMQConnectionFactory factory;
-	private ConcurrentMap<Long, Message> messageResponse;
+	private ConcurrentMap<String, MessageAdaptor> messageResponse;
 	private String topic;
 
 	public ListenerThread(ActiveMQConnectionFactory factory,
-			ConcurrentMap<Long, Message> messageResponse, String topic) {
+			ConcurrentMap<String, MessageAdaptor> messageResponse, String topic) {
 		this.factory = factory;
 		this.messageResponse = messageResponse;
 		this.topic = topic;
@@ -49,24 +50,20 @@ public class ListenerThread extends Thread {
 			MessageConsumer consumer = session.createConsumer(dest);
 
 			while (true) {
-				javax.jms.Message message = consumer.receive();
-				if (message instanceof ObjectMessage) {
-					ObjectMessage objectMessage = (ObjectMessage) message;
-					Serializable object = objectMessage.getObject();
-					if (object instanceof Message) {
-						Message response = (Message) object;
-						messageResponse.put(response.getId(), response);
-						logger.info(String.format(
-								"Message %d received on topic %s.",
-								response.getId(), topic));
-					} else {
-						logger.error("Not a well-formed message "
-								+ (object == null ? "null" : object.getClass()));
-					}
+				Message message = consumer.receive();
+
+				String id = message.getStringProperty(Strings.ID);
+				if (id == null) {
+					logger.error("Property ID is null. Message is " + message);
 				} else {
-					logger.error("Unexpected message type: "
-							+ message.getClass());
+					messageResponse
+							.put(id, MessageFactory.wrapMessage(message));
+					logger.info(String.format(
+							"Message %s received on topic %s.",
+							message.getStringProperty(Strings.ID), topic));
+//					logger.debug(""+messageResponse+" "+messageResponse.size());
 				}
+
 			}
 		} catch (JMSException e) {
 			logger.error("Error occur on receiving message", e);

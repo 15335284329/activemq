@@ -9,15 +9,16 @@ import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.log4j.Logger;
 
-import com.lumanmed.activemq.message.Message;
+import com.lumanmed.activemq.api.MessageAdaptor;
+
 
 /**
  * @author Willard
@@ -27,11 +28,11 @@ public class PublisherThread extends Thread {
 	private static final Logger logger = Logger
 			.getLogger(PublisherThread.class);
 	private ActiveMQConnectionFactory factory;
-	private Vector<Message> messageSource;
+	private Vector<MessageAdaptor> messageSource;
 	private String topic;
 
 	public PublisherThread(ActiveMQConnectionFactory factory,
-			Vector<Message> messageSource, String topic) {
+			Vector<MessageAdaptor> messageSource, String topic) {
 		this.factory = factory;
 		this.messageSource = messageSource;
 		this.topic = topic;
@@ -46,11 +47,11 @@ public class PublisherThread extends Thread {
 			if (messageSource.size() > 0) {
 				// The first element is valid since messageSource only increase
 				// never decrease outside PublisherThread.
-				Message message = messageSource.remove(0);
+				MessageAdaptor request = messageSource.remove(0);
 
 				try {
-					logger.info(String.format("Start connection %d ...",
-							message.getId()));
+					logger.info(String.format("Start connection %s ...",
+							request.getId()));
 					Connection connection = factory.createConnection();
 					connection.start();
 					Session session = connection.createSession(false,
@@ -59,16 +60,15 @@ public class PublisherThread extends Thread {
 					MessageProducer producer = session.createProducer(dest);
 					producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-					ObjectMessage objectMessage = session
-							.createObjectMessage(message);
-					logger.info(String.format("Send message %d on topic %s...",
-							message.getId(), topic));
-					producer.send(objectMessage);
+					Message message = request.toMessage(session);
+					logger.info(String.format("Send message %s on topic %s...",
+							request.getId(), topic));
+					producer.send(message);
 					connection.close();
 				} catch (JMSException e) {
 					logger.error(String.format(
-							"Error occur on sending message %d on topic %s.",
-							message.getId(), topic), e);
+							"Error occur on sending message %s on topic %s.",
+							request.getId(), topic), e);
 				}
 			} else {
 				logger.info("No messages to publish. Go to sleep and wait for notify.");

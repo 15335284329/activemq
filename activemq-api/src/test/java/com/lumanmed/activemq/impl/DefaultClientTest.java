@@ -6,10 +6,9 @@ package com.lumanmed.activemq.impl;
 import org.junit.Test;
 
 import com.lumanmed.activemq.api.Client;
+import com.lumanmed.activemq.api.MessageAdaptor;
 import com.lumanmed.activemq.api.MessageHandler;
-import com.lumanmed.activemq.message.CameraControlMessage;
-import com.lumanmed.activemq.message.CameraResponseMessage;
-import com.lumanmed.activemq.message.Message;
+import com.lumanmed.activemq.message.CameraCaptureRequest;
 
 import junit.framework.TestCase;
 
@@ -25,7 +24,7 @@ public class DefaultClientTest extends TestCase {
 	}
 
 	// won't enable this test cause it brings up background thread
-	//@Test
+	@Test
 	public void testClient() {
 		CameraClientThread cameraClient = new CameraClientThread();
 		cameraClient.start();
@@ -47,7 +46,7 @@ public class DefaultClientTest extends TestCase {
 		public void run() {
 			pathinfoClient = new DefaultClient("Camera-Request", "Camera-Response");
 			
-			CameraControlMessage message = new CameraControlMessage();
+			CameraCaptureRequest message = new CameraCaptureRequest();
 			System.out.println("Sending ...");
 			pathinfoClient.sendAndWait(message);
 
@@ -73,16 +72,10 @@ public class DefaultClientTest extends TestCase {
 	
 	static class MockMessageHandler implements MessageHandler {
 
-		public Message handle(Message message) {
-			if (message instanceof CameraControlMessage) {
-				System.out.println("Receiving ...");
-				Message response = new CameraResponseMessage();
-				response.setId(message.getId());
-				return response;
-			} else {
-				System.out.println("Unexpected message type: " + (message == null ? "null" : message.getClass()));
-				return null;
-			}
+		public MessageAdaptor handle(MessageAdaptor message) {
+			CameraCaptureRequest request = new CameraCaptureRequest();
+			request.setId(message.getId());
+			return request;
 		}
 		
 	}

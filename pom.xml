@@ -10,6 +10,7 @@
 	<modules>
 		<module>activemq-api</module>
 		<module>mock-camera</module>
+		<module>microscope</module>
 	</modules>
     
 	<properties>

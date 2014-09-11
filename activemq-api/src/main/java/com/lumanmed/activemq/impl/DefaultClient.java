@@ -28,7 +28,7 @@ public class DefaultClient implements Client {
 	protected String password = "pathinfo";
 	protected String host = "localhost";
 	protected int port = 61616;
-	protected long timeout = 10000; // 10 seconds
+	protected long timeout = 40000; // 40 seconds
 
 	protected ActiveMQConnectionFactory factory;
 	protected long counter = 0;

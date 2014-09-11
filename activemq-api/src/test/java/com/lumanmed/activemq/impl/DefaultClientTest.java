@@ -24,7 +24,7 @@ public class DefaultClientTest extends TestCase {
 	}
 
 	// won't enable this test cause it brings up background thread
-	@Test
+	//@Test
 	public void testClient() {
 		CameraClientThread cameraClient = new CameraClientThread();
 		cameraClient.start();

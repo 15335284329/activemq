@@ -9,68 +9,77 @@ import com.lumanmed.activemq.impl.FileServerClient;
 
 /**
  * Hello world!
- *
+ * 
  */
 public class Camera {
-	private Client client;
-	private CaptureRequestHandler handler;
-	private Vector<File> imageQueue;
-	
-	public Camera() {
-		imageQueue = new Vector<File>();
-		DriverThread driver = new DriverThread(imageQueue);
-		driver.start();
-		
-		client = new FileServerClient("Camera-Response", "Camera-Request");
-		handler = new CaptureRequestHandler(imageQueue);
-		client.waitAndResponse(handler);
-		System.out.println("Camera started. Waiting for request ...");
-	}
-	
-	private static class DriverThread extends Thread {
-		private Vector<File> imageQueue;
-		public DriverThread(Vector<File> imageQueue) {
-			this.imageQueue = imageQueue;
-		}
+    private Client client;
+    private CaptureRequestHandler handler;
+    private Vector<File> imageQueue;
 
-		@Override
-		public void run() {
-			File currentDir = new File(".");
-			
-			while (true) {
-				File[] images = currentDir.listFiles(new FileFilter(){
+    public Camera() {
+        imageQueue = new Vector<File>();
+        DriverThread driver = new DriverThread(imageQueue);
+        driver.start();
 
-					@Override
-					public boolean accept(File file) {
-						if (file.isFile() && file.getName().endsWith(".jpg")) {
-							return true;
-						}
-						return false;
-					}});
-				for (File i : images) {
-					boolean found = false;
-					for (File j : imageQueue) {
-						if (i.getAbsolutePath().equals(j.getAbsolutePath())) {
-							found = true;
-						}
-					}
-					
-					if (!found) {
-						System.out.println(String.format("Found image %s, added to queue.", i.getAbsolutePath()));
-						imageQueue.add(i);
-					}
-				}
-				
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
-	public static void main(String[] args) {
-		new Camera();
-	}
+        client = new FileServerClient("Camera-Response", "Camera-Request");
+        handler = new CaptureRequestHandler(imageQueue);
+        client.waitAndResponse(handler);
+        System.out.println("Camera started. Waiting for request ...");
+    }
+
+    private static class DriverThread extends Thread {
+        private Vector<File> imageQueue;
+
+        public DriverThread(Vector<File> imageQueue) {
+            this.imageQueue = imageQueue;
+        }
+
+        int count = 0;
+
+        @Override
+        public void run() {
+            File currentDir = new File("D:\\path");
+
+            while (true) {
+                File[] images = currentDir.listFiles(new FileFilter() {
+
+                    @Override
+                    public boolean accept(File file) {
+                        if (file.isFile() && file.getName().endsWith(".jpg")) {
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+                for (File i : images) {
+                    boolean found = false;
+                    for (File j : imageQueue) {
+                        if (i.getAbsolutePath().equals(j.getAbsolutePath())
+                                && count != 0) {
+                            found = true;
+                        }
+                    }
+
+                    if (!found) {
+                        System.out.println(String.format(
+                                "Found image %s, added to queue.",
+                                i.getAbsolutePath()));
+                        imageQueue.add(i);
+                    }
+                }
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                count++;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        new Camera();
+    }
 }
